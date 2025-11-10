@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Доводка силы цвета белых баз</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      padding: 28px;
+      max-width: 600px;
+      width: 100%;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      max-height: 140px; /* Увеличено в 2 раза */
+      display: block;
+      margin: 0 auto 16px;
+      object-fit: contain;
+    }
+    .logo .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+    label {
+      display: block;
+      margin: 16px 0 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0b5ed7;
+    }
+    #result {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #0d6efd;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    #result b {
+      color: #0d4a7f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="Litum logo.png" alt="Litum">
+      <div class="subtitle">Доводка показателя красящей способности основы Е170</div>
+    </div>
+
+    <label for="product">Выберите базу:</label>
+    <select id="product" onchange="updateMass()">
+      <option value="">— Выберите —</option>
+      <option value="0">Литакоут Фрост База 1</option>
+      <option value="1">Литакоут Фрост База 2</option>
+      <option value="2">Литакоут Фрост У База 1</option>
+      <option value="3">Литакоут Фрост У База 2</option>
+      <option value="4">Литакоут Классик База 1</option>
+      <option value="5">Литакоут Классик База 2</option>
+      <option value="6">Литакоут Акрил База 1</option>
+      <option value="7">Литакоут Акрил База 2</option>
+      <option value="8">Литакоут Алкид База 1</option>
+      <option value="9">Литакоут Алкид База 2</option>
+      <option value="10">Литакоут Флекси База 1</option>
+      <option value="11">Литакоут Флекси База 2</option>
+      <option value="12">Литакоут Эпокс База 1</option>
+      <option value="13">Литакоут Эпокс База 2</option>
+      <option value="14">Литамастик 190/290 База 1</option>
+      <option value="15">Литапрайм Экспресс Мульти База 1</option>
+      <option value="16">Литатерм Финиш База 1</option>
+      <option value="17">Литатерм Финиш База 2</option>
+      <option value="18">Литапрайм Акрил База 1</option>
+      <option value="19">Литапрайм Акрил База 2</option>
+      <option value="20">Литапрайм Гидро База 1</option>
+    </select>
+
+    <label for="batchMass">Фактическая масса партии (кг):</label>
+    <input type="number" id="batchMass" step="0.1" placeholder="Масса партии">
+
+    <label for="tio2">Фактическое содержание TiO₂ (кг):</label>
+    <input type="number" id="tio2" step="0.1" placeholder="Например: 700">
+
+    <label for="strength">Фактическая сила цвета (DIN 53234):</label>
+    <input type="number" id="strength" step="0.1" placeholder="Например: 92.5">
+
+    <button onclick="calculate()">Рассчитать доводку</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const products = [
+      [3500, 715],  // 0
+      [3300, 310],  // 1
+      [3150, 650],  // 2
+      [3150, 310],  // 3
+      [3370, 725],  // 4
+      [3300, 325],  // 5
+      [2500, 400],  // 6
+      [2650, 200],  // 7
+      [2500, 425],  // 8
+      [2500, 200],  // 9
+      [2900, 475],  // 10
+      [2850, 263],  // 11
+      [3200, 1175], // 12
+      [2700, 400],  // 13
+      [4000, 525],  // 14
+      [3650, 425],  // 15
+      [3150, 475],  // 16
+      [2550, 175],  // 17
+      [2780, 350],  // 18
+      [2780, 180],  // 19
+      [2520, 250]   // 20
+    ];
+
+    const TARGET = 100;
+    const TOL_LOW = 96;
+    const TOL_HIGH = 104;
+
+    function updateMass() {
+      const idx = document.getElementById('product').value;
+      const massInput = document.getElementById('batchMass');
+      if (idx !== '') {
+        massInput.value = products[idx][0];
+      } else {
+        massInput.value = '';
+      }
+    }
+
+    function calculate() {
+      const productSelect = document.getElementById('product');
+      const batchMassInput = document.getElementById('batchMass');
+      const tio2Input = document.getElementById('tio2');
+      const strengthInput = document.getElementById('strength');
+      const resultDiv = document.getElementById('result');
+
+      const idx = productSelect.value;
+      const batchMass = parseFloat(batchMassInput.value);
+      const tio2 = parseFloat(tio2Input.value);
+      const strength = parseFloat(strengthInput.value);
+
+      if (idx === '' || isNaN(batchMass) || isNaN(tio2) || isNaN(strength)) {
+        resultDiv.innerHTML = '<b>Ошибка:</b> Заполните все поля.';
+        return;
+      }
+
+      let message = '';
+
+      if (strength >= TOL_LOW && strength <= TOL_HIGH) {
+        message = `✅ Сила цвета (${strength}) в допуске [${TOL_LOW}–${TOL_HIGH}]. Доводка не требуется.`;
+      } else if (strength < TOL_LOW) {
+        const add_neutral = batchMass * (TARGET / strength - 1);
+        message = `
+          ⚠️ База <b>сильная</b> (сила = ${strength.toFixed(1)} < ${TOL_LOW}).<br>
+          ➕ Рекомендуется добавить <b>${add_neutral.toFixed(2)} кг нейтральной базы</b>.<br>
+          После разбавления сила цвета будет ≈ ${TARGET}.
+        `;
+      } else if (strength > TOL_HIGH) {
+        const tio2_needed = tio2 * (strength / TARGET);
+        const add_tio2 = tio2_needed - tio2;
+        message = `
+          ⚠️ База <b>слабая</b> (сила = ${strength.toFixed(1)} > ${TOL_HIGH}).<br>
+          ➕ Рекомендуется добавить <b>${add_tio2.toFixed(2)} кг TiO₂</b>.<br>
+          После добавки сила цвета будет ≈ ${TARGET}.
+        `;
+      }
+
+      resultDiv.innerHTML = message;
+    }
+  </script>
+</body>
+</html>
