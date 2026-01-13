@@ -1,219 +1,1260 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Доводка силы цвета белых баз</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Roboto', Arial, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-    }
-    .container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-      padding: 28px;
-      max-width: 600px;
-      width: 100%;
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .logo img {
-      max-height: 140px; /* Увеличено в 2 раза */
-      display: block;
-      margin: 0 auto 16px;
-      object-fit: contain;
-    }
-    .logo .subtitle {
-      font-size: 14px;
-      color: #666;
-      margin-top: 4px;
-    }
-    label {
-      display: block;
-      margin: 16px 0 6px;
-      font-weight: 500;
-      color: #333;
-      font-size: 14px;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #0d6efd;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 24px;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #0b5ed7;
-    }
-    #result {
-      margin-top: 24px;
-      padding: 16px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border-left: 4px solid #0d6efd;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-    #result b {
-      color: #0d4a7f;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Разделение игроков для мини-футбола</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin: 0 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1.5rem;
+        }
+        
+        h2 {
+            color: #2980b9;
+            margin: 25px 0 15px 0;
+            font-size: 1.3rem;
+        }
+        
+        h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        
+        .app-description {
+            background-color: #e8f4fc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .main-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .control-group.legioner {
+            border-left-color: #e74c3c;
+            margin-top: 20px;
+        }
+        
+        .control-group.teams {
+            border-left-color: #2ecc71;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .color-option {
+            padding: 12px 8px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .color-option.selected {
+            border: 2px solid #2c3e50;
+            transform: scale(1.02);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .color-blue {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .color-green {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .color-orange {
+            background-color: #e67e22;
+            color: white;
+        }
+        
+        .color-red {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .color-white {
+            background-color: #ecf0f1;
+            color: #333;
+            border: 1px solid #bdc3c7;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+            touch-action: manipulation;
+        }
+        
+        button:hover, button:active {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background-color: #2ecc71;
+        }
+        
+        button.secondary:hover, button.secondary:active {
+            background-color: #27ae60;
+        }
+        
+        button.danger {
+            background-color: #e74c3c;
+        }
+        
+        button.danger:hover, button.danger:active {
+            background-color: #c0392b;
+        }
+        
+        button.warning {
+            background-color: #f39c12;
+        }
+        
+        button.warning:hover, button.warning:active {
+            background-color: #d68910;
+        }
+        
+        .players-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .players-controls .button-group {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        
+        .counters {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .counter {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .counter-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .counter-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .players-list-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+        
+        th, td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        tr.present {
+            background-color: #e8f6f3;
+        }
+        
+        .checkbox-cell {
+            width: 50px;
+            text-align: center;
+        }
+        
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #3498db;
+        }
+        
+        .legioner-badge {
+            background-color: #f39c12;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+        
+        .teams-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .team {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid;
+        }
+        
+        .team h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        .team-color-indicator {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+        
+        .team-1 .team-header { border-color: #e74c3c; }
+        .team-2 .team-header { border-color: #3498db; }
+        .team-3 .team-header { border-color: #2ecc71; }
+        
+        .team-rating {
+            font-weight: 700;
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: #2c3e50;
+        }
+        
+        .player-item {
+            padding: 12px 0;
+            border-bottom: 1px dashed #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .player-item:last-child {
+            border-bottom: none;
+        }
+        
+        .player-name {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .stats {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .warning, .info {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid;
+            font-size: 0.95rem;
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-left-color: #17a2b8;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .mobile-only {
+            display: block;
+        }
+        
+        .desktop-only {
+            display: none;
+        }
+        
+        /* Мобильная адаптация */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+                margin: 20px 0 12px 0;
+            }
+            
+            .control-group {
+                padding: 12px;
+            }
+            
+            .color-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .color-option {
+                padding: 14px 5px;
+                font-size: 0.85rem;
+            }
+            
+            button {
+                padding: 16px 10px;
+                font-size: 15px;
+                min-width: 120px;
+            }
+            
+            .counters {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .counter {
+                padding: 12px 8px;
+            }
+            
+            .counter-value {
+                font-size: 1.5rem;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.9rem;
+            }
+            
+            .team {
+                padding: 15px;
+            }
+            
+            .team-rating {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+            
+            .player-name {
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .color-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .counters {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                min-width: 100%;
+            }
+        }
+        
+        /* Для очень высоких экранов */
+        @media (min-height: 800px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="Litum logo.png" alt="Litum">
-      <div class="subtitle">Доводка показателя красящей способности основы Е170</div>
+    <div class="container">
+        <h1>⚽ Разделение игроков для мини-футбола</h1>
+        
+        <div class="app-description">
+            <p><strong>Инструкция:</strong> Отметьте игроков, которые пришли на игру (или добавьте легионеров), выберите количество и цвета команд, затем нажмите "Разделить на команды". Программа автоматически сформирует команды по 5 человек с максимально равным средним рейтингом.</p>
+        </div>
+        
+        <div class="main-controls">
+            <div class="control-group teams">
+                <h2>Настройка команд</h2>
+                
+                <label>Количество команд:</label>
+                <div class="button-group">
+                    <button id="twoTeamsBtn" class="secondary">2 команды</button>
+                    <button id="threeTeamsBtn">3 команды</button>
+                </div>
+                
+                <div id="teamColorsSection" class="hidden">
+                    <label>Выберите цвета команд:</label>
+                    <div class="color-options" id="colorOptions">
+                        <div class="color-option color-blue" data-color="blue">Синие</div>
+                        <div class="color-option color-green" data-color="green">Зеленые</div>
+                        <div class="color-option color-orange" data-color="orange">Оранжевые</div>
+                        <div class="color-option color-red" data-color="red">Красные</div>
+                        <div class="color-option color-white" data-color="white">Белые</div>
+                    </div>
+                    
+                    <div id="selectedColorsInfo" class="info hidden">
+                        Выберите <span id="teamsCount">0</span> цвета для команд
+                    </div>
+                    
+                    <button id="splitTeamsBtn" style="width: 100%; margin-top: 10px;">Разделить на команды</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="counters">
+            <div class="counter">
+                <div class="counter-value" id="totalPlayersCount">0</div>
+                <div class="counter-label">Всего игроков</div>
+            </div>
+            <div class="counter">
+                <div class="counter-value" id="presentPlayersCount">0</div>
+                <div class="counter-label">Пришли на игру</div>
+            </div>
+            <div class="counter">
+                <div class="counter-value" id="legionersCount">0</div>
+                <div class="counter-label">Легионеров</div>
+            </div>
+            <div class="counter">
+                <div class="counter-value" id="possibleTeamsCount">0</div>
+                <div class="counter-label">Доступно команд</div>
+            </div>
+        </div>
+        
+        <div id="warningContainer"></div>
+        
+        <div class="players-controls">
+            <h2 style="margin: 0 0 10px 0; width: 100%;">Список игроков</h2>
+            <div class="button-group">
+                <button id="markAllBtn">Отметить всех</button>
+                <button id="unmarkAllBtn">Снять всех</button>
+                <button id="showOnlyPresentBtn">Только пришедшие</button>
+                <button id="showAllBtn" class="secondary">Показать всех</button>
+                <button id="loadDefaultPlayersBtn" class="secondary">Загрузить список игроков</button>
+            </div>
+        </div>
+        
+        <div class="players-list-container">
+            <table id="playersTable">
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">Пришел</th>
+                        <th>Имя игрока</th>
+                        <th>Тип</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="playersTableBody">
+                    <!-- Список игроков будет здесь -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="control-group legioner">
+            <h2>Добавить легионера</h2>
+            <p>Игрок, которого нет в основном списке</p>
+            <label for="legionerName">Имя легионера:</label>
+            <input type="text" id="legionerName" placeholder="Введите имя игрока">
+            
+            <label for="legionerRating">Рейтинг легионера (1-10):</label>
+            <input type="number" id="legionerRating" min="1" max="10" value="5" step="0.1">
+            
+            <div class="button-group">
+                <button id="addLegionerBtn" class="warning">Добавить легионера</button>
+                <button id="clearLegionersBtn" class="danger">Удалить всех легионеров</button>
+            </div>
+        </div>
+        
+        <div id="teamsSection" class="hidden">
+            <h2>Сформированные команды</h2>
+            <div class="teams-container" id="teamsContainer">
+                <!-- Команды будут здесь -->
+            </div>
+            
+            <div class="stats">
+                <h2>Балансировка команд</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Статистика будет здесь -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Программа для разделения игроков на команды с балансировкой по рейтингу</p>
+            <p>Для мини-футбола: 5 игроков в команде, 2 или 3 команды</p>
+        </footer>
     </div>
 
-    <label for="product">Выберите базу:</label>
-    <select id="product" onchange="updateMass()">
-      <option value="">— Выберите —</option>
-      <option value="0">Литакоут Фрост База 1</option>
-      <option value="1">Литакоут Фрост База 2</option>
-      <option value="2">Литакоут Фрост У База 1</option>
-      <option value="3">Литакоут Фрост У База 2</option>
-      <option value="4">Литакоут Классик База 1</option>
-      <option value="5">Литакоут Классик База 2</option>
-      <option value="6">Литакоут Акрил База 1</option>
-      <option value="7">Литакоут Акрил База 2</option>
-      <option value="8">Литакоут Алкид База 1</option>
-      <option value="9">Литакоут Алкид База 2</option>
-      <option value="10">Литакоут Флекси База 1</option>
-      <option value="11">Литакоут Флекси База 2</option>
-      <option value="12">Литакоут Эпокс База 1</option>
-      <option value="13">Литакоут Эпокс База 2</option>
-      <option value="14">Литамастик 190/290 База 1</option>
-      <option value="15">Литапрайм Экспресс Мульти База 1</option>
-      <option value="16">Литатерм Финиш База 1</option>
-      <option value="17">Литатерм Финиш База 2</option>
-      <option value="18">Литапрайм Акрил База 1</option>
-      <option value="19">Литапрайм Акрил База 2</option>
-      <option value="20">Литапрайм Гидро База 1</option>
-    </select>
-
-    <label for="batchMass">Фактическая масса партии (кг):</label>
-    <input type="number" id="batchMass" step="0.1" placeholder="Масса партии">
-
-    <label for="tio2">Фактическое содержание TiO₂ (кг):</label>
-    <input type="number" id="tio2" step="0.1" placeholder="Например: 700">
-
-    <label for="strength">Фактическая сила цвета (DIN 53234):</label>
-    <input type="number" id="strength" step="0.1" placeholder="Например: 92.5">
-
-    <button onclick="calculate()">Рассчитать доводку</button>
-
-    <div id="result"></div>
-  </div>
-
-  <script>
-    const products = [
-      [3500, 715],  // 0
-      [3300, 310],  // 1
-      [3150, 650],  // 2
-      [3150, 310],  // 3
-      [3370, 725],  // 4
-      [3300, 325],  // 5
-      [2500, 400],  // 6
-      [2650, 200],  // 7
-      [2500, 425],  // 8
-      [2500, 200],  // 9
-      [2900, 475],  // 10
-      [2850, 263],  // 11
-      [3200, 1175], // 12
-      [2700, 400],  // 13
-      [4000, 525],  // 14
-      [3650, 425],  // 15
-      [3150, 475],  // 16
-      [2550, 175],  // 17
-      [2780, 350],  // 18
-      [2780, 180],  // 19
-      [2520, 250]   // 20
-    ];
-
-    const TARGET = 100;
-    const TOL_LOW = 96;
-    const TOL_HIGH = 104;
-
-    function updateMass() {
-      const idx = document.getElementById('product').value;
-      const massInput = document.getElementById('batchMass');
-      if (idx !== '') {
-        massInput.value = products[idx][0];
-      } else {
-        massInput.value = '';
-      }
-    }
-
-    function calculate() {
-      const productSelect = document.getElementById('product');
-      const batchMassInput = document.getElementById('batchMass');
-      const tio2Input = document.getElementById('tio2');
-      const strengthInput = document.getElementById('strength');
-      const resultDiv = document.getElementById('result');
-
-      const idx = productSelect.value;
-      const batchMass = parseFloat(batchMassInput.value);
-      const tio2 = parseFloat(tio2Input.value);
-      const strength = parseFloat(strengthInput.value);
-
-      if (idx === '' || isNaN(batchMass) || isNaN(tio2) || isNaN(strength)) {
-        resultDiv.innerHTML = '<b>Ошибка:</b> Заполните все поля.';
-        return;
-      }
-
-      let message = '';
-
-      if (strength >= TOL_LOW && strength <= TOL_HIGH) {
-        message = `✅ Сила цвета (${strength}) в допуске [${TOL_LOW}–${TOL_HIGH}]. Доводка не требуется.`;
-      } else if (strength < TOL_LOW) {
-        const add_neutral = batchMass * (TARGET / strength - 1);
-        message = `
-          ⚠️ База <b>сильная</b> (сила = ${strength.toFixed(1)} < ${TOL_LOW}).<br>
-          ➕ Рекомендуется добавить <b>${add_neutral.toFixed(2)} кг нейтральной базы</b>.<br>
-          После разбавления сила цвета будет ≈ ${TARGET}.
-        `;
-      } else if (strength > TOL_HIGH) {
-        const tio2_needed = tio2 * (strength / TARGET);
-        const add_tio2 = tio2_needed - tio2;
-        message = `
-          ⚠️ База <b>слабая</b> (сила = ${strength.toFixed(1)} > ${TOL_HIGH}).<br>
-          ➕ Рекомендуется добавить <b>${add_tio2.toFixed(2)} кг TiO₂</b>.<br>
-          После добавки сила цвета будет ≈ ${TARGET}.
-        `;
-      }
-
-      resultDiv.innerHTML = message;
-    }
-  </script>
+    <script>
+        // Основной список игроков (изначально пустой, загружается по кнопке)
+        let allPlayers = [];
+        
+        // Список легионеров (временные игроки для текущей игры)
+        let legioners = [];
+        
+        // Текущие настройки команд
+        let teamSettings = {
+            count: 2, // количество команд (2 или 3)
+            colors: ['blue', 'green'], // выбранные цвета
+            availableColors: ['blue', 'green', 'orange', 'red', 'white']
+        };
+        
+        // Текущий фильтр отображения
+        let showOnlyPresent = false;
+        
+        // DOM элементы
+        const legionerNameInput = document.getElementById('legionerName');
+        const legionerRatingInput = document.getElementById('legionerRating');
+        const playersTableBody = document.getElementById('playersTableBody');
+        const teamsContainer = document.getElementById('teamsContainer');
+        const totalPlayersCount = document.getElementById('totalPlayersCount');
+        const presentPlayersCount = document.getElementById('presentPlayersCount');
+        const legionersCount = document.getElementById('legionersCount');
+        const possibleTeamsCount = document.getElementById('possibleTeamsCount');
+        const teamsSection = document.getElementById('teamsSection');
+        const warningContainer = document.getElementById('warningContainer');
+        const statsGrid = document.getElementById('statsGrid');
+        const teamColorsSection = document.getElementById('teamColorsSection');
+        const selectedColorsInfo = document.getElementById('selectedColorsInfo');
+        const teamsCountSpan = document.getElementById('teamsCount');
+        const colorOptions = document.querySelectorAll('.color-option');
+        
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загружаем данные из localStorage
+            loadFromStorage();
+            
+            // Обновляем интерфейс
+            updatePlayersList();
+            updateCounters();
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Устанавливаем 2 команды по умолчанию
+            setTeamCount(2);
+        });
+        
+        function setupEventListeners() {
+            // Кнопки добавления
+            document.getElementById('addLegionerBtn').addEventListener('click', addLegioner);
+            document.getElementById('loadDefaultPlayersBtn').addEventListener('click', loadDefaultPlayers);
+            
+            // Кнопки управления командами
+            document.getElementById('twoTeamsBtn').addEventListener('click', () => setTeamCount(2));
+            document.getElementById('threeTeamsBtn').addEventListener('click', () => setTeamCount(3));
+            document.getElementById('splitTeamsBtn').addEventListener('click', splitIntoTeams);
+            
+            // Кнопки управления игроками
+            document.getElementById('markAllBtn').addEventListener('click', () => markAllPlayers(true));
+            document.getElementById('unmarkAllBtn').addEventListener('click', () => markAllPlayers(false));
+            document.getElementById('showOnlyPresentBtn').addEventListener('click', () => toggleFilter(true));
+            document.getElementById('showAllBtn').addEventListener('click', () => toggleFilter(false));
+            document.getElementById('clearLegionersBtn').addEventListener('click', clearAllLegioners);
+            
+            // Обработчики для выбора цветов
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    toggleColorSelection(this.dataset.color);
+                });
+            });
+            
+            // Добавление легионера по Enter
+            legionerNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addLegioner();
+            });
+            
+            legionerRatingInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addLegioner();
+            });
+            
+            // Обработка касаний для лучшей мобильной поддержки
+            document.addEventListener('touchstart', function() {}, {passive: true});
+        }
+        
+        // Функция загрузки списка игроков по умолчанию
+        function loadDefaultPlayers() {
+            const defaultPlayers = [
+                {id: 1, name: "Алексей Беть", rating: 7.5, present: false, isLegioner: false},
+                {id: 2, name: "Стас Калистратов", rating: 6.7, present: false, isLegioner: false},
+                {id: 3, name: "Леха АБ", rating: 8.1, present: false, isLegioner: false},
+                {id: 4, name: "Саня кэп", rating: 6.4, present: false, isLegioner: false},
+                {id: 5, name: "Кирилл Калистратов", rating: 7.0, present: false, isLegioner: false},
+                {id: 6, name: "Алексей Большой", rating: 6.2, present: false, isLegioner: false},
+                {id: 7, name: "Андрей Розина", rating: 5.9, present: false, isLegioner: false},
+                {id: 8, name: "Денис Жуков", rating: 7.7, present: false, isLegioner: false},
+                {id: 9, name: "Дима Седов", rating: 8.4, present: false, isLegioner: false},
+                {id: 10, name: "Евгений Шушары", rating: 6.6, present: false, isLegioner: false},
+                {id: 11, name: "Иван Деменев", rating: 7.0, present: false, isLegioner: false},
+                {id: 12, name: "Игорь Калистратов", rating: 8.5, present: false, isLegioner: false},
+                {id: 13, name: "Никитос", rating: 6.5, present: false, isLegioner: false},
+                {id: 14, name: "Павел", rating: 5.6, present: false, isLegioner: false},
+                {id: 15, name: "Соколов Максим", rating: 5.3, present: false, isLegioner: false},
+                {id: 16, name: "Дима Занько", rating: 8.1, present: false, isLegioner: false},
+                {id: 17, name: "Иван Аскаров", rating: 6.8, present: false, isLegioner: false},
+                {id: 18, name: "Валентин", rating: 8.0, present: false, isLegioner: false},
+                {id: 19, name: "Влад Меленевский", rating: 5.8, present: false, isLegioner: false},
+                {id: 20, name: "Алексей Паук", rating: 9.2, present: false, isLegioner: false},
+                {id: 21, name: "Андрей Буштак", rating: 4.6, present: false, isLegioner: false},
+                {id: 22, name: "Андрей Здравков", rating: 7.2, present: false, isLegioner: false},
+                {id: 23, name: "Леша iSerenity", rating: 6.2, present: false, isLegioner: false},
+                {id: 24, name: "Александр Кунтыш", rating: 5.8, present: false, isLegioner: false},
+                {id: 25, name: "Игорь Иванов", rating: 8.5, present: false, isLegioner: false}
+            ];
+            
+            allPlayers = defaultPlayers;
+            saveToStorage();
+            updatePlayersList();
+            updateCounters();
+            showInfo('Загружен список из 25 игроков. Теперь отметьте, кто пришел на игру.');
+        }
+        
+        // Функция добавления легионера
+        function addLegioner() {
+            const name = legionerNameInput.value.trim();
+            const rating = parseFloat(legionerRatingInput.value);
+            
+            if (!name) {
+                showWarning('Введите имя легионера');
+                return;
+            }
+            
+            if (isNaN(rating) || rating < 1 || rating > 10) {
+                showWarning('Рейтинг должен быть числом от 1 до 10');
+                return;
+            }
+            
+            // Добавляем легионера
+            const newLegioner = {
+                id: Date.now(),
+                name: name,
+                rating: rating,
+                present: true, // Легионер по умолчанию пришел на игру
+                isLegioner: true
+            };
+            
+            legioners.push(newLegioner);
+            
+            // Обновляем интерфейс
+            updatePlayersList();
+            updateCounters();
+            
+            // Очищаем поля ввода
+            legionerNameInput.value = '';
+            legionerRatingInput.value = '5';
+            legionerNameInput.focus();
+            
+            // Скрываем раздел с командами, т.к. состав изменился
+            teamsSection.classList.add('hidden');
+        }
+        
+        // Функция удаления легионера
+        function removeLegioner(id) {
+            legioners = legioners.filter(player => player.id !== id);
+            updatePlayersList();
+            updateCounters();
+            teamsSection.classList.add('hidden');
+        }
+        
+        // Функция удаления всех легионеров
+        function clearAllLegioners() {
+            if (legioners.length === 0) {
+                showInfo('Нет легионеров для удаления');
+                return;
+            }
+            
+            if (confirm(`Удалить всех легионеров (${legioners.length} человек)?`)) {
+                legioners = [];
+                updatePlayersList();
+                updateCounters();
+                teamsSection.classList.add('hidden');
+                showInfo('Все легионеры удалены');
+            }
+        }
+        
+        // Функция обновления списка игроков в таблице
+        function updatePlayersList() {
+            playersTableBody.innerHTML = '';
+            
+            // Объединяем всех игроков (основные + легионеры)
+            const allPlayersCombined = [...allPlayers, ...legioners];
+            
+            if (allPlayersCombined.length === 0) {
+                playersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 30px; color: #7f8c8d;">
+                            Нет игроков. Нажмите "Загрузить список игроков" или добавьте легионеров.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Фильтруем игроков если нужно показывать только пришедших
+            let playersToShow = allPlayersCombined;
+            if (showOnlyPresent) {
+                playersToShow = allPlayersCombined.filter(player => player.present);
+                
+                if (playersToShow.length === 0) {
+                    playersTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 30px; color: #7f8c8d;">
+                                Нет игроков, отмеченных как "пришедшие на игру".
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+            }
+            
+            // Сортируем игроков по рейтингу (от высокого к низкому) для распределения
+            // Но в таблице сортируем по имени для удобства
+            const sortedPlayers = [...playersToShow].sort((a, b) => a.name.localeCompare(b.name));
+            
+            sortedPlayers.forEach(player => {
+                const row = document.createElement('tr');
+                if (player.present) {
+                    row.classList.add('present');
+                }
+                
+                row.innerHTML = `
+                    <td class="checkbox-cell">
+                        <input type="checkbox" ${player.present ? 'checked' : ''} 
+                               onchange="togglePlayerPresence(${player.id}, ${player.isLegioner})">
+                    </td>
+                    <td>${player.name} ${player.isLegioner ? '<span class="legioner-badge">Легионер</span>' : ''}</td>
+                    <td>${player.isLegioner ? 'Легионер' : 'Основной'}</td>
+                    <td>
+                        ${player.isLegioner ? 
+                            `<button onclick="removeLegioner(${player.id})" class="danger" style="padding: 8px 12px; font-size: 14px;">Удалить</button>` : 
+                            ''
+                        }
+                    </td>
+                `;
+                playersTableBody.appendChild(row);
+            });
+        }
+        
+        // Функция переключения состояния "пришел на игру"
+        function togglePlayerPresence(id, isLegioner) {
+            if (isLegioner) {
+                // Для легионеров
+                const player = legioners.find(p => p.id === id);
+                if (player) {
+                    player.present = !player.present;
+                }
+            } else {
+                // Для основных игроков
+                const player = allPlayers.find(p => p.id === id);
+                if (player) {
+                    player.present = !player.present;
+                    saveToStorage();
+                }
+            }
+            
+            updatePlayersList();
+            updateCounters();
+            teamsSection.classList.add('hidden');
+        }
+        
+        // Функция отметки всех игроков
+        function markAllPlayers(markAsPresent) {
+            // Отмечаем основных игроков
+            allPlayers.forEach(player => {
+                player.present = markAsPresent;
+            });
+            
+            // Отмечаем легионеров
+            legioners.forEach(player => {
+                player.present = markAsPresent;
+            });
+            
+            saveToStorage();
+            updatePlayersList();
+            updateCounters();
+            teamsSection.classList.add('hidden');
+        }
+        
+        // Функция переключения фильтра
+        function toggleFilter(onlyPresent) {
+            showOnlyPresent = onlyPresent;
+            updatePlayersList();
+        }
+        
+        // Функция обновления счетчиков
+        function updateCounters() {
+            const allPlayersCombined = [...allPlayers, ...legioners];
+            const presentPlayers = allPlayersCombined.filter(player => player.present);
+            const presentCount = presentPlayers.length;
+            const legionersCountValue = legioners.length;
+            
+            totalPlayersCount.textContent = allPlayersCombined.length;
+            presentPlayersCount.textContent = presentCount;
+            legionersCount.textContent = legionersCountValue;
+            
+            // Доступно команд по 5 человек
+            const possibleTeams = Math.floor(presentCount / 5);
+            possibleTeamsCount.textContent = possibleTeams;
+            
+            // Активируем кнопку разделения, если достаточно игроков
+            const splitBtn = document.getElementById('splitTeamsBtn');
+            if (presentCount >= teamSettings.count * 5) {
+                splitBtn.disabled = false;
+                splitBtn.style.opacity = '1';
+            } else {
+                splitBtn.disabled = true;
+                splitBtn.style.opacity = '0.6';
+            }
+        }
+        
+        // Функция установки количества команд
+        function setTeamCount(count) {
+            teamSettings.count = count;
+            
+            // Обновляем стили кнопок
+            document.getElementById('twoTeamsBtn').classList.remove('secondary');
+            document.getElementById('threeTeamsBtn').classList.remove('secondary');
+            
+            if (count === 2) {
+                document.getElementById('twoTeamsBtn').classList.add('secondary');
+                teamSettings.colors = ['blue', 'green']; // цвета по умолчанию
+            } else {
+                document.getElementById('threeTeamsBtn').classList.add('secondary');
+                teamSettings.colors = ['blue', 'green', 'orange']; // цвета по умолчанию
+            }
+            
+            // Показываем выбор цветов
+            teamColorsSection.classList.remove('hidden');
+            teamsCountSpan.textContent = count;
+            selectedColorsInfo.classList.remove('hidden');
+            
+            // Сбрасываем и обновляем выбор цветов
+            updateColorSelection();
+            
+            showInfo(`Выбрано ${count} команды. Теперь выберите цвета для команд.`);
+        }
+        
+        // Функция переключения выбора цвета
+        function toggleColorSelection(color) {
+            const index = teamSettings.colors.indexOf(color);
+            
+            if (index !== -1) {
+                // Цвет уже выбран - снимаем выделение
+                teamSettings.colors.splice(index, 1);
+            } else {
+                // Цвет не выбран - добавляем, если есть место
+                if (teamSettings.colors.length < teamSettings.count) {
+                    teamSettings.colors.push(color);
+                } else {
+                    showWarning(`Можно выбрать только ${teamSettings.count} цвета`);
+                    return;
+                }
+            }
+            
+            updateColorSelection();
+        }
+        
+        // Функция обновления отображения выбранных цветов
+        function updateColorSelection() {
+            // Снимаем все выделения
+            colorOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Выделяем выбранные цвета
+            teamSettings.colors.forEach(color => {
+                const option = document.querySelector(`.color-option[data-color="${color}"]`);
+                if (option) {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // Обновляем информацию
+            selectedColorsInfo.innerHTML = `Выбрано <strong>${teamSettings.colors.length}</strong> из <strong>${teamSettings.count}</strong> цветов`;
+        }
+        
+        // Функция разделения на команды
+        function splitIntoTeams() {
+            // Проверяем, что выбраны все цвета
+            if (teamSettings.colors.length !== teamSettings.count) {
+                showWarning(`Необходимо выбрать ${teamSettings.count} цвета для команд`);
+                return;
+            }
+            
+            // Получаем список всех игроков, которые пришли
+            const presentPlayers = [...allPlayers, ...legioners].filter(player => player.present);
+            
+            // Проверяем, достаточно ли игроков
+            if (presentPlayers.length < teamSettings.count * 5) {
+                showWarning(`Недостаточно игроков для ${teamSettings.count} команд. Нужно минимум ${teamSettings.count * 5} игроков, а пришло ${presentPlayers.length}.`);
+                return;
+            }
+            
+            // Сортируем игроков по рейтингу (от высокого к низкому)
+            const sortedPlayers = [...presentPlayers].sort((a, b) => b.rating - a.rating);
+            
+            // Инициализируем команды с выбранными цветами
+            const teams = [];
+            for (let i = 0; i < teamSettings.count; i++) {
+                const colorName = getColorName(teamSettings.colors[i]);
+                teams.push({
+                    players: [],
+                    totalRating: 0,
+                    averageRating: 0,
+                    color: teamSettings.colors[i],
+                    colorName: colorName
+                });
+            }
+            
+            // Распределяем игроков по алгоритму "snake draft"
+            for (let i = 0; i < teamSettings.count * 5; i++) {
+                const teamIndex = i % teamSettings.count;
+                // Для четных проходов распределяем в обычном порядке, для нечетных - в обратном
+                const actualTeamIndex = Math.floor(i / teamSettings.count) % 2 === 0 
+                    ? teamIndex 
+                    : teamSettings.count - 1 - teamIndex;
+                
+                teams[actualTeamIndex].players.push(sortedPlayers[i]);
+                teams[actualTeamIndex].totalRating += sortedPlayers[i].rating;
+            }
+            
+            // Рассчитываем средний рейтинг для каждой команды
+            teams.forEach(team => {
+                team.averageRating = team.totalRating / 5;
+            });
+            
+            // Сортируем команды по среднему рейтингу для красивого отображения
+            teams.sort((a, b) => b.averageRating - a.averageRating);
+            
+            // Отображаем команды
+            displayTeams(teams);
+            
+            // Показываем статистику
+            displayStats(teams);
+            
+            // Показываем раздел с командами
+            teamsSection.classList.remove('hidden');
+            
+            // Прокручиваем к результатам
+            setTimeout(() => {
+                teamsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        // Функция получения названия цвета на русском
+        function getColorName(colorCode) {
+            const colorNames = {
+                'blue': 'Синие',
+                'green': 'Зеленые',
+                'orange': 'Оранжевые',
+                'red': 'Красные',
+                'white': 'Белые'
+            };
+            return colorNames[colorCode] || colorCode;
+        }
+        
+        // Функция отображения команд
+        function displayTeams(teams) {
+            teamsContainer.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = `team team-${index + 1}`;
+                
+                // Определяем цвет индикатора
+                let indicatorColor;
+                switch(team.color) {
+                    case 'blue': indicatorColor = '#3498db'; break;
+                    case 'green': indicatorColor = '#2ecc71'; break;
+                    case 'orange': indicatorColor = '#e67e22'; break;
+                    case 'red': indicatorColor = '#e74c3c'; break;
+                    case 'white': indicatorColor = '#ecf0f1'; break;
+                    default: indicatorColor = '#95a5a6';
+                }
+                
+                // Сортируем игроков в команде по имени для отображения
+                const sortedTeamPlayers = [...team.players].sort((a, b) => a.name.localeCompare(b.name));
+                
+                let playersHTML = '';
+                sortedTeamPlayers.forEach(player => {
+                    playersHTML += `
+                        <div class="player-item">
+                            <div class="player-name">
+                                ${player.name} 
+                                ${player.isLegioner ? '<span class="legioner-badge">Легионер</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                teamDiv.innerHTML = `
+                    <div class="team-header">
+                        <h3>${team.colorName}</h3>
+                        <div class="team-color-indicator" style="background-color: ${indicatorColor};"></div>
+                    </div>
+                    <div class="team-rating">Средний рейтинг: ${team.averageRating.toFixed(1)}</div>
+                    ${playersHTML}
+                `;
+                
+                teamsContainer.appendChild(teamDiv);
+            });
+        }
+        
+        // Функция отображения статистики
+        function displayStats(teams) {
+            const ratings = teams.map(team => team.averageRating);
+            const maxRating = Math.max(...ratings);
+            const minRating = Math.min(...ratings);
+            const difference = maxRating - minRating;
+            
+            // Упрощенная статистика - только средние рейтинги команд
+            statsGrid.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const statItem = document.createElement('div');
+                statItem.className = 'stat-item';
+                statItem.innerHTML = `
+                    <div class="stat-value">${team.averageRating.toFixed(1)}</div>
+                    <div class="stat-label">${team.colorName}</div>
+                `;
+                statsGrid.appendChild(statItem);
+            });
+            
+            // Показываем предупреждение, если разница слишком большая
+            if (difference > 0.8) {
+                showWarning(`Разница в среднем рейтинге между командами: ${difference.toFixed(1)} пункта.`, false);
+            }
+        }
+        
+        // Функция сохранения данных в localStorage
+        function saveToStorage() {
+            const data = {
+                allPlayers: allPlayers,
+                teamSettings: teamSettings
+            };
+            localStorage.setItem('futsalAppData', JSON.stringify(data));
+        }
+        
+        // Функция загрузки данных из localStorage
+        function loadFromStorage() {
+            const savedData = localStorage.getItem('futsalAppData');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    allPlayers = data.allPlayers || [];
+                    teamSettings = data.teamSettings || {count: 2, colors: ['blue', 'green']};
+                } catch (e) {
+                    console.error('Ошибка загрузки данных:', e);
+                }
+            }
+        }
+        
+        // Функция показа предупреждений
+        function showWarning(message, isError = true) {
+            warningContainer.innerHTML = `
+                <div class="${isError ? 'warning' : 'info'}">
+                    ${message}
+                </div>
+            `;
+            
+            // Автоматически скрываем предупреждение через 5 секунд
+            setTimeout(() => {
+                warningContainer.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Функция показа информационных сообщений
+        function showInfo(message) {
+            showWarning(message, false);
+        }
+    </script>
 </body>
 </html>
