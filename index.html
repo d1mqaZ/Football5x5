@@ -133,7 +133,8 @@
         .color-option.selected {
             border: 2px solid #2c3e50;
             transform: scale(1.02);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-weight: 700;
         }
         
         .color-blue {
@@ -194,6 +195,16 @@
             transform: translateY(0);
         }
         
+        button.selected {
+            background-color: #2c3e50;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+        
+        button.selected:hover {
+            background-color: #2c3e50;
+        }
+        
         button.secondary {
             background-color: #2ecc71;
         }
@@ -216,6 +227,26 @@
         
         button.warning:hover, button.warning:active {
             background-color: #d68910;
+        }
+        
+        button.confirm {
+            background-color: #9b59b6;
+        }
+        
+        button.confirm:hover, button.confirm:active {
+            background-color: #8e44ad;
+        }
+        
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+        
+        button:disabled:hover {
+            background-color: #bdc3c7;
+            transform: none;
         }
         
         .players-controls {
@@ -460,6 +491,34 @@
             display: none;
         }
         
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .step {
+            padding: 8px 16px;
+            background-color: #ecf0f1;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+        
+        .step.active {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .step.completed {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
         /* Мобильная адаптация */
         @media (max-width: 480px) {
             .container {
@@ -525,6 +584,15 @@
             .player-name {
                 font-size: 0.95rem;
             }
+            
+            .step-indicator {
+                gap: 8px;
+            }
+            
+            .step {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
         }
         
         @media (max-width: 360px) {
@@ -558,16 +626,23 @@
         <h1>⚽ Разделение игроков для мини-футбола</h1>
         
         <div class="app-description">
-            <p><strong>Инструкция:</strong> Отметьте игроков, которые пришли на игру (или добавьте легионеров), выберите количество и цвета команд, затем нажмите "Разделить на команды". Программа автоматически сформирует команды по 5 человек с максимально равным средним рейтингом.</p>
+            <p><strong>Инструкция:</strong> Сначала выберите количество и цвета команд, затем отметьте пришедших игроков, подтвердите список, при необходимости добавьте легионеров, и нажмите "Разделить на команды".</p>
+        </div>
+        
+        <div class="step-indicator">
+            <div class="step active" id="step1">1. Выбор команд</div>
+            <div class="step" id="step2">2. Список игроков</div>
+            <div class="step" id="step3">3. Легионеры</div>
+            <div class="step" id="step4">4. Результат</div>
         </div>
         
         <div class="main-controls">
-            <div class="control-group teams">
-                <h2>Настройка команд</h2>
+            <div class="control-group teams" id="teamSelectionSection">
+                <h2>Шаг 1: Настройка команд</h2>
                 
                 <label>Количество команд:</label>
                 <div class="button-group">
-                    <button id="twoTeamsBtn" class="secondary">2 команды</button>
+                    <button id="twoTeamsBtn">2 команды</button>
                     <button id="threeTeamsBtn">3 команды</button>
                 </div>
                 
@@ -585,61 +660,64 @@
                         Выберите <span id="teamsCount">0</span> цвета для команд
                     </div>
                     
-                    <button id="splitTeamsBtn" style="width: 100%; margin-top: 10px;">Разделить на команды</button>
+                    <button id="confirmTeamSelectionBtn" class="secondary" style="width: 100%; margin-top: 10px;">Перейти к списку игроков</button>
                 </div>
             </div>
         </div>
         
-        <div class="counters">
-            <div class="counter">
-                <div class="counter-value" id="totalPlayersCount">0</div>
-                <div class="counter-label">Всего игроков</div>
+        <div id="playerListSection" class="hidden">
+            <div class="counters">
+                <div class="counter">
+                    <div class="counter-value" id="totalPlayersCount">0</div>
+                    <div class="counter-label">Всего игроков</div>
+                </div>
+                <div class="counter">
+                    <div class="counter-value" id="presentPlayersCount">0</div>
+                    <div class="counter-label">Пришли на игру</div>
+                </div>
+                <div class="counter">
+                    <div class="counter-value" id="legionersCount">0</div>
+                    <div class="counter-label">Легионеров</div>
+                </div>
+                <div class="counter">
+                    <div class="counter-value" id="possibleTeamsCount">0</div>
+                    <div class="counter-label">Доступно команд</div>
+                </div>
             </div>
-            <div class="counter">
-                <div class="counter-value" id="presentPlayersCount">0</div>
-                <div class="counter-label">Пришли на игру</div>
+            
+            <div id="warningContainer"></div>
+            
+            <div class="players-controls">
+                <h2 style="margin: 0 0 10px 0; width: 100%;">Шаг 2: Список игроков</h2>
+                <div class="button-group">
+                    <button id="markAllBtn">Отметить всех</button>
+                    <button id="unmarkAllBtn">Снять всех</button>
+                    <button id="showOnlyPresentBtn">Только пришедшие</button>
+                    <button id="showAllBtn" class="secondary">Показать всех</button>
+                </div>
             </div>
-            <div class="counter">
-                <div class="counter-value" id="legionersCount">0</div>
-                <div class="counter-label">Легионеров</div>
+            
+            <div class="players-list-container">
+                <table id="playersTable">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell">Пришел</th>
+                            <th>Имя игрока</th>
+                            <th>Тип</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playersTableBody">
+                        <!-- Список игроков будет здесь -->
+                    </tbody>
+                </table>
             </div>
-            <div class="counter">
-                <div class="counter-value" id="possibleTeamsCount">0</div>
-                <div class="counter-label">Доступно команд</div>
-            </div>
+            
+            <button id="confirmPlayersBtn" class="confirm" style="width: 100%; margin-top: 20px; padding: 16px;">Подтвердить список пришедших игроков</button>
         </div>
         
-        <div id="warningContainer"></div>
-        
-        <div class="players-controls">
-            <h2 style="margin: 0 0 10px 0; width: 100%;">Список игроков</h2>
-            <div class="button-group">
-                <button id="markAllBtn">Отметить всех</button>
-                <button id="unmarkAllBtn">Снять всех</button>
-                <button id="showOnlyPresentBtn">Только пришедшие</button>
-                <button id="showAllBtn" class="secondary">Показать всех</button>
-                <button id="loadDefaultPlayersBtn" class="secondary">Загрузить список игроков</button>
-            </div>
-        </div>
-        
-        <div class="players-list-container">
-            <table id="playersTable">
-                <thead>
-                    <tr>
-                        <th class="checkbox-cell">Пришел</th>
-                        <th>Имя игрока</th>
-                        <th>Тип</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody id="playersTableBody">
-                    <!-- Список игроков будет здесь -->
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="control-group legioner">
-            <h2>Добавить легионера</h2>
+        <div class="control-group legioner hidden" id="legionerSection">
+            <h2>Шаг 3: Добавить легионера</h2>
             <p>Игрок, которого нет в основном списке</p>
             <label for="legionerName">Имя легионера:</label>
             <input type="text" id="legionerName" placeholder="Введите имя игрока">
@@ -651,10 +729,17 @@
                 <button id="addLegionerBtn" class="warning">Добавить легионера</button>
                 <button id="clearLegionersBtn" class="danger">Удалить всех легионеров</button>
             </div>
+            
+            <div style="margin-top: 20px;">
+                <button id="splitTeamsBtn" style="width: 100%; padding: 16px;" disabled>Разделить на команды</button>
+                <p id="playersRequiredInfo" style="text-align: center; margin-top: 10px; color: #7f8c8d; font-size: 0.9rem;">
+                    Для разделения на команды нужно <span id="requiredPlayersCount">10</span> игроков
+                </p>
+            </div>
         </div>
         
         <div id="teamsSection" class="hidden">
-            <h2>Сформированные команды</h2>
+            <h2>Шаг 4: Сформированные команды</h2>
             <div class="teams-container" id="teamsContainer">
                 <!-- Команды будут здесь -->
             </div>
@@ -665,6 +750,8 @@
                     <!-- Статистика будет здесь -->
                 </div>
             </div>
+            
+            <button id="restartBtn" class="secondary" style="width: 100%; margin-top: 20px; padding: 16px;">Начать заново</button>
         </div>
         
         <footer>
@@ -674,7 +761,7 @@
     </div>
 
     <script>
-        // Основной список игроков (изначально пустой, загружается по кнопке)
+        // Основной список игроков (изначально пустой, загружается автоматически)
         let allPlayers = [];
         
         // Список легионеров (временные игроки для текущей игры)
@@ -682,13 +769,16 @@
         
         // Текущие настройки команд
         let teamSettings = {
-            count: 2, // количество команд (2 или 3)
-            colors: ['blue', 'green'], // выбранные цвета
+            count: 0, // количество команд (0, 2 или 3)
+            colors: [], // выбранные цвета
             availableColors: ['blue', 'green', 'orange', 'red', 'white']
         };
         
         // Текущий фильтр отображения
         let showOnlyPresent = false;
+        
+        // Текущий шаг
+        let currentStep = 1;
         
         // DOM элементы
         const legionerNameInput = document.getElementById('legionerName');
@@ -706,31 +796,36 @@
         const selectedColorsInfo = document.getElementById('selectedColorsInfo');
         const teamsCountSpan = document.getElementById('teamsCount');
         const colorOptions = document.querySelectorAll('.color-option');
+        const teamSelectionSection = document.getElementById('teamSelectionSection');
+        const playerListSection = document.getElementById('playerListSection');
+        const legionerSection = document.getElementById('legionerSection');
+        const requiredPlayersCount = document.getElementById('requiredPlayersCount');
+        const playersRequiredInfo = document.getElementById('playersRequiredInfo');
         
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
             // Загружаем данные из localStorage
             loadFromStorage();
             
-            // Обновляем интерфейс
-            updatePlayersList();
-            updateCounters();
-            
             // Настройка обработчиков событий
             setupEventListeners();
             
-            // Устанавливаем 2 команды по умолчанию
-            setTeamCount(2);
+            // Обновляем шаг
+            updateStepIndicator();
         });
         
         function setupEventListeners() {
-            // Кнопки добавления
+            // Кнопки выбора количества команд
+            document.getElementById('twoTeamsBtn').addEventListener('click', () => selectTeamCount(2));
+            document.getElementById('threeTeamsBtn').addEventListener('click', () => selectTeamCount(3));
+            
+            // Кнопка подтверждения выбора команд
+            document.getElementById('confirmTeamSelectionBtn').addEventListener('click', confirmTeamSelection);
+            
+            // Кнопки добавления легионера
             document.getElementById('addLegionerBtn').addEventListener('click', addLegioner);
-            document.getElementById('loadDefaultPlayersBtn').addEventListener('click', loadDefaultPlayers);
             
             // Кнопки управления командами
-            document.getElementById('twoTeamsBtn').addEventListener('click', () => setTeamCount(2));
-            document.getElementById('threeTeamsBtn').addEventListener('click', () => setTeamCount(3));
             document.getElementById('splitTeamsBtn').addEventListener('click', splitIntoTeams);
             
             // Кнопки управления игроками
@@ -739,6 +834,8 @@
             document.getElementById('showOnlyPresentBtn').addEventListener('click', () => toggleFilter(true));
             document.getElementById('showAllBtn').addEventListener('click', () => toggleFilter(false));
             document.getElementById('clearLegionersBtn').addEventListener('click', clearAllLegioners);
+            document.getElementById('confirmPlayersBtn').addEventListener('click', confirmPlayersList);
+            document.getElementById('restartBtn').addEventListener('click', restartApp);
             
             // Обработчики для выбора цветов
             colorOptions.forEach(option => {
@@ -758,6 +855,88 @@
             
             // Обработка касаний для лучшей мобильной поддержки
             document.addEventListener('touchstart', function() {}, {passive: true});
+        }
+        
+        // Функция выбора количества команд
+        function selectTeamCount(count) {
+            teamSettings.count = count;
+            
+            // Снимаем выделение с обеих кнопок
+            document.getElementById('twoTeamsBtn').classList.remove('selected');
+            document.getElementById('threeTeamsBtn').classList.remove('selected');
+            
+            // Выделяем выбранную кнопку
+            if (count === 2) {
+                document.getElementById('twoTeamsBtn').classList.add('selected');
+            } else {
+                document.getElementById('threeTeamsBtn').classList.add('selected');
+            }
+            
+            // Показываем выбор цветов
+            teamColorsSection.classList.remove('hidden');
+            teamsCountSpan.textContent = count;
+            selectedColorsInfo.classList.remove('hidden');
+            
+            // Сбрасываем выбор цветов
+            teamSettings.colors = [];
+            updateColorSelection();
+            
+            // Обновляем информацию о требуемых игроках
+            requiredPlayersCount.textContent = count * 5;
+            
+            showInfo(`Выбрано ${count} команды. Теперь выберите цвета для команд.`);
+        }
+        
+        // Функция подтверждения выбора команд
+        function confirmTeamSelection() {
+            // Проверяем, что выбраны все цвета
+            if (teamSettings.colors.length !== teamSettings.count) {
+                showWarning(`Необходимо выбрать ${teamSettings.count} цвета для команд`);
+                return;
+            }
+            
+            // Загружаем список игроков по умолчанию если еще не загружен
+            if (allPlayers.length === 0) {
+                loadDefaultPlayers();
+            }
+            
+            // Переходим к шагу 2
+            currentStep = 2;
+            updateStepIndicator();
+            
+            // Показываем секцию со списком игроков
+            playerListSection.classList.remove('hidden');
+            
+            // Обновляем интерфейс
+            updatePlayersList();
+            updateCounters();
+            
+            // Прокручиваем к списку игроков
+            setTimeout(() => {
+                playerListSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+        
+        // Функция подтверждения списка игроков
+        function confirmPlayersList() {
+            const presentPlayers = getAllPresentPlayers();
+            
+            if (presentPlayers.length === 0) {
+                showWarning('Не отмечено ни одного игрока. Отметьте пришедших игроков.');
+                return;
+            }
+            
+            // Переходим к шагу 3
+            currentStep = 3;
+            updateStepIndicator();
+            
+            // Показываем секцию с легионерами
+            legionerSection.classList.remove('hidden');
+            
+            // Прокручиваем к секции легионеров
+            setTimeout(() => {
+                legionerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
         
         // Функция загрузки списка игроков по умолчанию
@@ -792,9 +971,7 @@
             
             allPlayers = defaultPlayers;
             saveToStorage();
-            updatePlayersList();
-            updateCounters();
-            showInfo('Загружен список из 25 игроков. Теперь отметьте, кто пришел на игру.');
+            showInfo('Загружен список из 25 игроков. Отметьте, кто пришел на игру.');
         }
         
         // Функция добавления легионера
@@ -832,8 +1009,8 @@
             legionerRatingInput.value = '5';
             legionerNameInput.focus();
             
-            // Скрываем раздел с командами, т.к. состав изменился
-            teamsSection.classList.add('hidden');
+            // Обновляем состояние кнопки "Разделить на команды"
+            updateSplitButtonState();
         }
         
         // Функция удаления легионера
@@ -841,7 +1018,7 @@
             legioners = legioners.filter(player => player.id !== id);
             updatePlayersList();
             updateCounters();
-            teamsSection.classList.add('hidden');
+            updateSplitButtonState();
         }
         
         // Функция удаления всех легионеров
@@ -855,9 +1032,15 @@
                 legioners = [];
                 updatePlayersList();
                 updateCounters();
-                teamsSection.classList.add('hidden');
+                updateSplitButtonState();
                 showInfo('Все легионеры удалены');
             }
+        }
+        
+        // Функция получения всех пришедших игроков
+        function getAllPresentPlayers() {
+            const allPlayersCombined = [...allPlayers, ...legioners];
+            return allPlayersCombined.filter(player => player.present);
         }
         
         // Функция обновления списка игроков в таблице
@@ -871,7 +1054,7 @@
                 playersTableBody.innerHTML = `
                     <tr>
                         <td colspan="4" style="text-align: center; padding: 30px; color: #7f8c8d;">
-                            Нет игроков. Нажмите "Загрузить список игроков" или добавьте легионеров.
+                            Нет игроков.
                         </td>
                     </tr>
                 `;
@@ -895,8 +1078,7 @@
                 }
             }
             
-            // Сортируем игроков по рейтингу (от высокого к низкому) для распределения
-            // Но в таблице сортируем по имени для удобства
+            // Сортируем игроков по имени для удобства
             const sortedPlayers = [...playersToShow].sort((a, b) => a.name.localeCompare(b.name));
             
             sortedPlayers.forEach(player => {
@@ -942,7 +1124,7 @@
             
             updatePlayersList();
             updateCounters();
-            teamsSection.classList.add('hidden');
+            updateSplitButtonState();
         }
         
         // Функция отметки всех игроков
@@ -960,7 +1142,7 @@
             saveToStorage();
             updatePlayersList();
             updateCounters();
-            teamsSection.classList.add('hidden');
+            updateSplitButtonState();
         }
         
         // Функция переключения фильтра
@@ -972,7 +1154,7 @@
         // Функция обновления счетчиков
         function updateCounters() {
             const allPlayersCombined = [...allPlayers, ...legioners];
-            const presentPlayers = allPlayersCombined.filter(player => player.present);
+            const presentPlayers = getAllPresentPlayers();
             const presentCount = presentPlayers.length;
             const legionersCountValue = legioners.length;
             
@@ -983,43 +1165,29 @@
             // Доступно команд по 5 человек
             const possibleTeams = Math.floor(presentCount / 5);
             possibleTeamsCount.textContent = possibleTeams;
-            
-            // Активируем кнопку разделения, если достаточно игроков
+        }
+        
+        // Функция обновления состояния кнопки "Разделить на команды"
+        function updateSplitButtonState() {
+            const presentPlayers = getAllPresentPlayers();
+            const presentCount = presentPlayers.length;
             const splitBtn = document.getElementById('splitTeamsBtn');
-            if (presentCount >= teamSettings.count * 5) {
+            const requiredCount = teamSettings.count * 5;
+            
+            if (teamSettings.count > 0 && presentCount >= requiredCount) {
                 splitBtn.disabled = false;
                 splitBtn.style.opacity = '1';
+                playersRequiredInfo.innerHTML = `<span style="color: #2ecc71; font-weight: 600;">✓ Достаточно игроков для разделения</span>`;
             } else {
                 splitBtn.disabled = true;
                 splitBtn.style.opacity = '0.6';
+                const needed = requiredCount - presentCount;
+                if (needed > 0) {
+                    playersRequiredInfo.innerHTML = `Для разделения на команды нужно еще <span style="color: #e74c3c; font-weight: 600;">${needed}</span> игроков`;
+                } else {
+                    playersRequiredInfo.innerHTML = `Для разделения на команды нужно <span id="requiredPlayersCount">${requiredCount}</span> игроков`;
+                }
             }
-        }
-        
-        // Функция установки количества команд
-        function setTeamCount(count) {
-            teamSettings.count = count;
-            
-            // Обновляем стили кнопок
-            document.getElementById('twoTeamsBtn').classList.remove('secondary');
-            document.getElementById('threeTeamsBtn').classList.remove('secondary');
-            
-            if (count === 2) {
-                document.getElementById('twoTeamsBtn').classList.add('secondary');
-                teamSettings.colors = ['blue', 'green']; // цвета по умолчанию
-            } else {
-                document.getElementById('threeTeamsBtn').classList.add('secondary');
-                teamSettings.colors = ['blue', 'green', 'orange']; // цвета по умолчанию
-            }
-            
-            // Показываем выбор цветов
-            teamColorsSection.classList.remove('hidden');
-            teamsCountSpan.textContent = count;
-            selectedColorsInfo.classList.remove('hidden');
-            
-            // Сбрасываем и обновляем выбор цветов
-            updateColorSelection();
-            
-            showInfo(`Выбрано ${count} команды. Теперь выберите цвета для команд.`);
         }
         
         // Функция переключения выбора цвета
@@ -1063,14 +1231,8 @@
         
         // Функция разделения на команды
         function splitIntoTeams() {
-            // Проверяем, что выбраны все цвета
-            if (teamSettings.colors.length !== teamSettings.count) {
-                showWarning(`Необходимо выбрать ${teamSettings.count} цвета для команд`);
-                return;
-            }
-            
             // Получаем список всех игроков, которые пришли
-            const presentPlayers = [...allPlayers, ...legioners].filter(player => player.present);
+            const presentPlayers = getAllPresentPlayers();
             
             // Проверяем, достаточно ли игроков
             if (presentPlayers.length < teamSettings.count * 5) {
@@ -1114,6 +1276,10 @@
             // Сортируем команды по среднему рейтингу для красивого отображения
             teams.sort((a, b) => b.averageRating - a.averageRating);
             
+            // Переходим к шагу 4
+            currentStep = 4;
+            updateStepIndicator();
+            
             // Отображаем команды
             displayTeams(teams);
             
@@ -1123,9 +1289,12 @@
             // Показываем раздел с командами
             teamsSection.classList.remove('hidden');
             
+            // Скрываем предыдущие секции
+            legionerSection.classList.add('hidden');
+            
             // Прокручиваем к результатам
             setTimeout(() => {
-                teamsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                teamsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
         
@@ -1214,6 +1383,48 @@
             }
         }
         
+        // Функция обновления индикатора шагов
+        function updateStepIndicator() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                } else if (index + 1 < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+        }
+        
+        // Функция перезапуска приложения
+        function restartApp() {
+            // Сбрасываем все данные
+            teamSettings.count = 0;
+            teamSettings.colors = [];
+            allPlayers.forEach(player => player.present = false);
+            legioners = [];
+            
+            // Сбрасываем UI
+            document.getElementById('twoTeamsBtn').classList.remove('selected');
+            document.getElementById('threeTeamsBtn').classList.remove('selected');
+            teamColorsSection.classList.add('hidden');
+            playerListSection.classList.add('hidden');
+            legionerSection.classList.add('hidden');
+            teamsSection.classList.add('hidden');
+            
+            // Возвращаем к шагу 1
+            currentStep = 1;
+            updateStepIndicator();
+            
+            // Сохраняем
+            saveToStorage();
+            
+            // Прокручиваем к началу
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            showInfo('Приложение сброшено. Начните заново.');
+        }
+        
         // Функция сохранения данных в localStorage
         function saveToStorage() {
             const data = {
@@ -1230,7 +1441,7 @@
                 try {
                     const data = JSON.parse(savedData);
                     allPlayers = data.allPlayers || [];
-                    teamSettings = data.teamSettings || {count: 2, colors: ['blue', 'green']};
+                    teamSettings = data.teamSettings || {count: 0, colors: []};
                 } catch (e) {
                     console.error('Ошибка загрузки данных:', e);
                 }
