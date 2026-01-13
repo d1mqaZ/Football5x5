@@ -27,8 +27,12 @@ function initApp() {
     // Находим все DOM элементы
     findDomElements();
     
-    // Загружаем данные игроков
-    loadPlayersData();
+    // Загружаем данные игроков (СТРОГИЙ РЕЖИМ - только из players.js)
+    if (!loadPlayersData()) {
+        // Если не удалось загрузить players.js, останавливаем программу
+        showCriticalError();
+        return;
+    }
     
     // Загружаем сохраненные данные
     loadFromStorage();
@@ -70,66 +74,92 @@ function findDomElements() {
     progressText = document.getElementById('progressText');
 }
 
-// ЗАГРУЗКА ДАННЫХ ИГРОКОВ
+// ЗАГРУЗКА ДАННЫХ ИГРОКОВ (СТРОГИЙ РЕЖИМ)
 function loadPlayersData() {
-    if (window.playersData && window.playersData.players) {
-        console.log(`📥 Загружаем данные игроков (версия ${window.playersData.version})`);
-        
-        // Проверяем версию данных
-        const savedVersion = localStorage.getItem('playersDataVersion');
-        const currentVersion = window.playersData.version;
-        
-        // Копируем игроков из конфига
-        const playersFromConfig = window.playersData.players;
-        
-        // Если это первый запуск или версия обновилась
-        if (!savedVersion || parseInt(savedVersion) < currentVersion) {
-            console.log(`🔄 Обновление данных с версии ${savedVersion || 'неизвестно'} до ${currentVersion}`);
-            
-            // Сохраняем статусы текущих игроков
-            const playerStatusMap = {};
-            allPlayers.forEach(player => {
-                playerStatusMap[player.name] = player.present;
-            });
-            
-            // Создаем новый список с сохранением статусов
-            allPlayers = playersFromConfig.map(player => ({
-                ...player,
-                present: playerStatusMap[player.name] || false
-            }));
-            
-            // Сохраняем новую версию
-            localStorage.setItem('playersDataVersion', currentVersion);
-            saveToStorage();
-            
-            showInfo(`Список игроков обновлен до версии ${currentVersion}`);
-        } else if (allPlayers.length === 0) {
-            // Первый запуск - просто копируем данные
-            allPlayers = playersFromConfig.map(player => ({
-                ...player,
-                present: false
-            }));
-        }
-        
-        console.log(`✅ Загружено ${allPlayers.length} игроков`);
-    } else {
-        console.error('❌ Не удалось загрузить данные игроков');
-        showWarning('Ошибка загрузки данных игроков. Проверьте файл players.js', true);
-        
-        // Создаем минимальный резервный список
-        allPlayers = [
-            {id: 1, name: "Игрок 1", rating: 5.0, present: false, isLegioner: false},
-            {id: 2, name: "Игрок 2", rating: 5.0, present: false, isLegioner: false},
-            {id: 3, name: "Игрок 3", rating: 5.0, present: false, isLegioner: false},
-            {id: 4, name: "Игрок 4", rating: 5.0, present: false, isLegioner: false},
-            {id: 5, name: "Игрок 5", rating: 5.0, present: false, isLegioner: false},
-            {id: 6, name: "Игрок 6", rating: 5.0, present: false, isLegioner: false},
-            {id: 7, name: "Игрок 7", rating: 5.0, present: false, isLegioner: false},
-            {id: 8, name: "Игрок 8", rating: 5.0, present: false, isLegioner: false},
-            {id: 9, name: "Игрок 9", rating: 5.0, present: false, isLegioner: false},
-            {id: 10, name: "Игрок 10", rating: 5.0, present: false, isLegioner: false}
-        ];
+    if (!window.playersData || !window.playersData.players) {
+        console.error('❌ Файл players.js не загружен или содержит ошибки');
+        return false;
     }
+    
+    console.log(`📥 Загружаем данные игроков (версия ${window.playersData.version})`);
+    
+    // Проверяем версию данных
+    const savedVersion = localStorage.getItem('playersDataVersion');
+    const currentVersion = window.playersData.version;
+    
+    // Копируем игроков из конфига
+    const playersFromConfig = window.playersData.players;
+    
+    // Если это первый запуск или версия обновилась
+    if (!savedVersion || parseInt(savedVersion) < currentVersion) {
+        console.log(`🔄 Обновление данных с версии ${savedVersion || 'неизвестно'} до ${currentVersion}`);
+        
+        // Сохраняем статусы текущих игроков
+        const playerStatusMap = {};
+        allPlayers.forEach(player => {
+            playerStatusMap[player.name] = {
+                present: player.present,
+                status: player.status
+            };
+        });
+        
+        // Создаем новый список с сохранением статусов
+        allPlayers = playersFromConfig.map(player => ({
+            ...player,
+            present: playerStatusMap[player.name] ? playerStatusMap[player.name].present : false,
+            // Если у старого игрока был статус, сохраняем его, иначе используем из конфига
+            status: playerStatusMap[player.name] ? playerStatusMap[player.name].status : player.status
+        }));
+        
+        // Сохраняем новую версию
+        localStorage.setItem('playersDataVersion', currentVersion);
+        saveToStorage();
+        
+        showInfo(`Список игроков обновлен до версии ${currentVersion}`);
+    } else if (allPlayers.length === 0) {
+        // Первый запуск - просто копируем данные
+        allPlayers = playersFromConfig.map(player => ({
+            ...player,
+            present: false
+        }));
+    }
+    
+    console.log(`✅ Загружено ${allPlayers.length} игроков`);
+    return true;
+}
+
+// КРИТИЧЕСКАЯ ОШИБКА - players.js не загружен
+function showCriticalError() {
+    const container = document.querySelector('.container');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <h1 style="color: #e74c3c;">❌ Ошибка загрузки</h1>
+            <div class="error" style="margin: 30px 0; text-align: left;">
+                <h3>Файл players.js не найден или содержит ошибки</h3>
+                <p><strong>Причина:</strong> Программа не может загрузить список игроков.</p>
+                <p><strong>Решение:</strong></p>
+                <ol>
+                    <li>Убедитесь, что файл <strong>players.js</strong> находится в той же папке, что и index.html</li>
+                    <li>Проверьте, что файл players.js содержит правильную структуру данных</li>
+                    <li>Если файл был изменен, восстановите оригинальную версию</li>
+                </ol>
+                <p><strong>Текущая папка должна содержать три файла:</strong></p>
+                <ul>
+                    <li>index.html</li>
+                    <li>players.js</li>
+                    <li>logic.js</li>
+                </ul>
+            </div>
+            <button onclick="location.reload()" class="secondary" style="margin-top: 20px;">
+                Обновить страницу
+            </button>
+        </div>
+    `;
+    
+    // Блокируем все кнопки
+    document.querySelectorAll('button').forEach(btn => {
+        btn.disabled = true;
+    });
 }
 
 // НАСТРОЙКА ОБРАБОТЧИКОВ СОБЫТИЙ
@@ -266,6 +296,7 @@ function addLegioner() {
         name: name,
         rating: rating,
         present: true,
+        status: "legioner",
         isLegioner: true
     };
     
@@ -310,7 +341,7 @@ function getAllPresentPlayers() {
     return allPlayersCombined.filter(player => player.present);
 }
 
-// ОБНОВЛЕНИЕ СПИСКА ИГРОКОВ В ТАБЛИЦЕ
+// ОБНОВЛЕНИЕ СПИСКА ИГРОКОВ В ТАБЛИЦЕ (С КОЛОНКОЙ СТАТУС)
 function updatePlayersList() {
     playersTableBody.innerHTML = '';
     
@@ -319,7 +350,7 @@ function updatePlayersList() {
     if (allPlayersCombined.length === 0) {
         playersTableBody.innerHTML = `
             <tr>
-                <td colspan="4" style="text-align: center; padding: 30px; color: #7f8c8d;">
+                <td colspan="5" style="text-align: center; padding: 30px; color: #7f8c8d;">
                     Нет игроков.
                 </td>
             </tr>
@@ -334,7 +365,7 @@ function updatePlayersList() {
         if (playersToShow.length === 0) {
             playersTableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 30px; color: #7f8c8d;">
+                    <td colspan="5" style="text-align: center; padding: 30px; color: #7f8c8d;">
                         Нет игроков, отмеченных как "пришедшие на игру".
                     </td>
                 </tr>
@@ -351,15 +382,37 @@ function updatePlayersList() {
             row.classList.add('present');
         }
         
+        // Определяем отображаемый статус
+        let statusDisplay = "";
+        let statusClass = "";
+        
+        if (window.playersData && window.playersData.getStatusDisplayName) {
+            statusDisplay = window.playersData.getStatusDisplayName(player.status);
+            statusClass = window.playersData.getStatusClass(player.status);
+        } else {
+            // Резервный вариант если playersData не загружен
+            const statusMap = {
+                "regular": "Абонемент",
+                "guest": "Гость",
+                "legioner": "Легионер"
+            };
+            statusDisplay = statusMap[player.status] || player.status;
+            statusClass = `status-${player.status}`;
+        }
+        
+        // Определяем тип игрока
+        const playerType = player.status === "legioner" ? "Легионер" : "Основной";
+        
         row.innerHTML = `
             <td class="checkbox-cell">
                 <input type="checkbox" ${player.present ? 'checked' : ''} 
-                       onchange="togglePlayerPresence(${player.id}, ${player.isLegioner})">
+                       onchange="togglePlayerPresence(${player.id}, ${player.status === 'legioner'})">
             </td>
-            <td>${player.name} ${player.isLegioner ? '<span class="legioner-badge">Легионер</span>' : ''}</td>
-            <td>${player.isLegioner ? 'Легионер' : 'Основной'}</td>
+            <td>${player.name} ${player.status === 'legioner' ? '<span class="legioner-badge">Легионер</span>' : ''}</td>
+            <td><span class="status-badge ${statusClass}">${statusDisplay}</span></td>
+            <td>${playerType}</td>
             <td>
-                ${player.isLegioner ? 
+                ${player.status === 'legioner' ? 
                     `<button onclick="removeLegioner(${player.id})" class="danger" style="padding: 8px 12px; font-size: 14px;">Удалить</button>` : 
                     ''
                 }
@@ -822,11 +875,21 @@ function displayTeams(teams) {
         
         let playersHTML = '';
         sortedTeamPlayers.forEach(player => {
+            // Определяем статус для отображения
+            let statusText = "";
+            if (player.status === "regular") {
+                statusText = " (Абонемент)";
+            } else if (player.status === "guest") {
+                statusText = " (Гость)";
+            } else if (player.status === "legioner") {
+                statusText = " (Легионер)";
+            }
+            
             playersHTML += `
                 <div class="player-item">
                     <div class="player-name">
-                        ${player.name} 
-                        ${player.isLegioner ? '<span class="legioner-badge">Легионер</span>' : ''}
+                        ${player.name}${statusText}
+                        ${player.status === 'legioner' ? '<span class="legioner-badge">Легионер</span>' : ''}
                     </div>
                 </div>
             `;
@@ -923,6 +986,14 @@ function loadFromStorage() {
             teamSettings = data.teamSettings || teamSettings;
             legioners = data.legioners || legioners;
             currentStep = data.currentStep || 1;
+            
+            // Конвертация старых данных (если нет поля status)
+            allPlayers.forEach(player => {
+                if (!player.status) {
+                    player.status = "regular"; // По умолчанию абонемент для старых игроков
+                }
+            });
+            
         } catch (e) {
             console.error('Ошибка загрузки данных:', e);
         }
