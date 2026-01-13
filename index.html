@@ -450,7 +450,7 @@
             color: #7f8c8d;
         }
         
-        .warning, .info {
+        .warning, .info, .success {
             padding: 15px;
             border-radius: 10px;
             margin: 15px 0;
@@ -468,6 +468,12 @@
             background-color: #d1ecf1;
             color: #0c5460;
             border-left-color: #17a2b8;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
         }
         
         footer {
@@ -517,6 +523,21 @@
         .step.completed {
             background-color: #2ecc71;
             color: white;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         /* Мобильная адаптация */
@@ -731,15 +752,26 @@
             </div>
             
             <div style="margin-top: 20px;">
-                <button id="splitTeamsBtn" style="width: 100%; padding: 16px;" disabled>Разделить на команды</button>
+                <button id="splitTeamsBtn" style="width: 100%; padding: 16px;" disabled>
+                    <span id="splitButtonText">Разделить на команды</span>
+                    <span id="splitButtonLoading" class="hidden loading"></span>
+                </button>
                 <p id="playersRequiredInfo" style="text-align: center; margin-top: 10px; color: #7f8c8d; font-size: 0.9rem;">
                     Для разделения на команды нужно <span id="requiredPlayersCount">10</span> игроков
+                </p>
+                <p id="balanceInfo" style="text-align: center; margin-top: 5px; color: #3498db; font-size: 0.9rem; font-weight: 500;">
+                    Алгоритм стремится к разнице в среднем рейтинге ≤ 0.2
                 </p>
             </div>
         </div>
         
         <div id="teamsSection" class="hidden">
             <h2>Шаг 4: Сформированные команды</h2>
+            
+            <div id="balanceResult" class="info" style="margin-bottom: 20px;">
+                <!-- Результат балансировки будет здесь -->
+            </div>
+            
             <div class="teams-container" id="teamsContainer">
                 <!-- Команды будут здесь -->
             </div>
@@ -801,6 +833,9 @@
         const legionerSection = document.getElementById('legionerSection');
         const requiredPlayersCount = document.getElementById('requiredPlayersCount');
         const playersRequiredInfo = document.getElementById('playersRequiredInfo');
+        const balanceResult = document.getElementById('balanceResult');
+        const splitButtonText = document.getElementById('splitButtonText');
+        const splitButtonLoading = document.getElementById('splitButtonLoading');
         
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
@@ -932,6 +967,9 @@
             
             // Показываем секцию с легионерами
             legionerSection.classList.remove('hidden');
+            
+            // Обновляем состояние кнопки разделения
+            updateSplitButtonState();
             
             // Прокручиваем к секции легионеров
             setTimeout(() => {
@@ -1229,73 +1267,256 @@
             selectedColorsInfo.innerHTML = `Выбрано <strong>${teamSettings.colors.length}</strong> из <strong>${teamSettings.count}</strong> цветов`;
         }
         
+        // Улучшенный алгоритм балансировки команд
+        function optimizeTeams(initialTeams, players, maxTimeMs = 8000) {
+            const startTime = Date.now();
+            let bestTeams = JSON.parse(JSON.stringify(initialTeams));
+            let bestDifference = calculateRatingDifference(bestTeams);
+            
+            // Если уже достигнута хорошая балансировка, возвращаем результат
+            if (bestDifference <= 0.2) {
+                return { teams: bestTeams, difference: bestDifference, optimized: true };
+            }
+            
+            // Количество игроков в команде
+            const playersPerTeam = 5;
+            
+            // Основной алгоритм оптимизации
+            for (let iteration = 0; iteration < 5000; iteration++) {
+                // Проверяем время
+                if (Date.now() - startTime > maxTimeMs) {
+                    break;
+                }
+                
+                // Создаем копию текущих команд для экспериментов
+                let currentTeams = JSON.parse(JSON.stringify(bestTeams));
+                
+                // Выбираем две случайные команды для обмена игроками
+                const teamIndices = getRandomTeamIndices(currentTeams.length);
+                const team1Index = teamIndices[0];
+                const team2Index = teamIndices[1];
+                
+                // Выбираем случайных игроков из каждой команды
+                const player1Index = Math.floor(Math.random() * playersPerTeam);
+                const player2Index = Math.floor(Math.random() * playersPerTeam);
+                
+                // Меняем игроков местами
+                const tempPlayer = currentTeams[team1Index].players[player1Index];
+                currentTeams[team1Index].players[player1Index] = currentTeams[team2Index].players[player2Index];
+                currentTeams[team2Index].players[player2Index] = tempPlayer;
+                
+                // Пересчитываем рейтинги
+                currentTeams.forEach(team => {
+                    team.totalRating = team.players.reduce((sum, player) => sum + player.rating, 0);
+                    team.averageRating = team.totalRating / playersPerTeam;
+                });
+                
+                // Вычисляем разницу
+                const currentDifference = calculateRatingDifference(currentTeams);
+                
+                // Если новый вариант лучше, сохраняем его
+                if (currentDifference < bestDifference) {
+                    bestTeams = currentTeams;
+                    bestDifference = currentDifference;
+                    
+                    // Если достигли целевой разницы, останавливаемся
+                    if (bestDifference <= 0.2) {
+                        return { teams: bestTeams, difference: bestDifference, optimized: true };
+                    }
+                }
+                
+                // С вероятностью 10% делаем более радикальное изменение (обмен 2 игроков)
+                if (Math.random() < 0.1) {
+                    let radicalTeams = JSON.parse(JSON.stringify(bestTeams));
+                    
+                    // Выбираем две пары игроков для обмена
+                    for (let swap = 0; swap < 2; swap++) {
+                        const t1 = Math.floor(Math.random() * radicalTeams.length);
+                        const t2 = Math.floor(Math.random() * radicalTeams.length);
+                        if (t1 === t2) continue;
+                        
+                        const p1 = Math.floor(Math.random() * playersPerTeam);
+                        const p2 = Math.floor(Math.random() * playersPerTeam);
+                        
+                        const temp = radicalTeams[t1].players[p1];
+                        radicalTeams[t1].players[p1] = radicalTeams[t2].players[p2];
+                        radicalTeams[t2].players[p2] = temp;
+                    }
+                    
+                    // Пересчитываем рейтинги
+                    radicalTeams.forEach(team => {
+                        team.totalRating = team.players.reduce((sum, player) => sum + player.rating, 0);
+                        team.averageRating = team.totalRating / playersPerTeam;
+                    });
+                    
+                    const radicalDifference = calculateRatingDifference(radicalTeams);
+                    
+                    if (radicalDifference < bestDifference) {
+                        bestTeams = radicalTeams;
+                        bestDifference = radicalDifference;
+                        
+                        if (bestDifference <= 0.2) {
+                            return { teams: bestTeams, difference: bestDifference, optimized: true };
+                        }
+                    }
+                }
+            }
+            
+            return { 
+                teams: bestTeams, 
+                difference: bestDifference, 
+                optimized: bestDifference <= 0.2,
+                timeSpent: Date.now() - startTime
+            };
+        }
+        
+        // Вспомогательная функция для вычисления разницы в рейтингах
+        function calculateRatingDifference(teams) {
+            const ratings = teams.map(team => team.averageRating);
+            const maxRating = Math.max(...ratings);
+            const minRating = Math.min(...ratings);
+            return maxRating - minRating;
+        }
+        
+        // Вспомогательная функция для получения случайных индексов команд
+        function getRandomTeamIndices(numTeams) {
+            const indices = [];
+            for (let i = 0; i < numTeams; i++) {
+                indices.push(i);
+            }
+            
+            // Перемешиваем индексы
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            
+            return indices.slice(0, 2);
+        }
+        
         // Функция разделения на команды
         function splitIntoTeams() {
-            // Получаем список всех игроков, которые пришли
-            const presentPlayers = getAllPresentPlayers();
+            // Показываем индикатор загрузки
+            splitButtonText.textContent = 'Балансировка команд...';
+            splitButtonLoading.classList.remove('hidden');
+            document.getElementById('splitTeamsBtn').disabled = true;
             
-            // Проверяем, достаточно ли игроков
-            if (presentPlayers.length < teamSettings.count * 5) {
-                showWarning(`Недостаточно игроков для ${teamSettings.count} команд. Нужно минимум ${teamSettings.count * 5} игроков, а пришло ${presentPlayers.length}.`);
-                return;
-            }
-            
-            // Сортируем игроков по рейтингу (от высокого к низкому)
-            const sortedPlayers = [...presentPlayers].sort((a, b) => b.rating - a.rating);
-            
-            // Инициализируем команды с выбранными цветами
-            const teams = [];
-            for (let i = 0; i < teamSettings.count; i++) {
-                const colorName = getColorName(teamSettings.colors[i]);
-                teams.push({
-                    players: [],
-                    totalRating: 0,
-                    averageRating: 0,
-                    color: teamSettings.colors[i],
-                    colorName: colorName
-                });
-            }
-            
-            // Распределяем игроков по алгоритму "snake draft"
-            for (let i = 0; i < teamSettings.count * 5; i++) {
-                const teamIndex = i % teamSettings.count;
-                // Для четных проходов распределяем в обычном порядке, для нечетных - в обратном
-                const actualTeamIndex = Math.floor(i / teamSettings.count) % 2 === 0 
-                    ? teamIndex 
-                    : teamSettings.count - 1 - teamIndex;
-                
-                teams[actualTeamIndex].players.push(sortedPlayers[i]);
-                teams[actualTeamIndex].totalRating += sortedPlayers[i].rating;
-            }
-            
-            // Рассчитываем средний рейтинг для каждой команды
-            teams.forEach(team => {
-                team.averageRating = team.totalRating / 5;
-            });
-            
-            // Сортируем команды по среднему рейтингу для красивого отображения
-            teams.sort((a, b) => b.averageRating - a.averageRating);
-            
-            // Переходим к шагу 4
-            currentStep = 4;
-            updateStepIndicator();
-            
-            // Отображаем команды
-            displayTeams(teams);
-            
-            // Показываем статистику
-            displayStats(teams);
-            
-            // Показываем раздел с командами
-            teamsSection.classList.remove('hidden');
-            
-            // Скрываем предыдущие секции
-            legionerSection.classList.add('hidden');
-            
-            // Прокручиваем к результатам
+            // Даем время на обновление UI
             setTimeout(() => {
-                teamsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                try {
+                    // Получаем список всех игроков, которые пришли
+                    const presentPlayers = getAllPresentPlayers();
+                    
+                    // Проверяем, достаточно ли игроков
+                    if (presentPlayers.length < teamSettings.count * 5) {
+                        showWarning(`Недостаточно игроков для ${teamSettings.count} команд. Нужно минимум ${teamSettings.count * 5} игроков, а пришло ${presentPlayers.length}.`);
+                        resetSplitButton();
+                        return;
+                    }
+                    
+                    // Сортируем игроков по рейтингу (от высокого к низкому)
+                    const sortedPlayers = [...presentPlayers].sort((a, b) => b.rating - a.rating);
+                    
+                    // Инициализируем команды с выбранными цветами (начальное распределение snake draft)
+                    const initialTeams = [];
+                    for (let i = 0; i < teamSettings.count; i++) {
+                        const colorName = getColorName(teamSettings.colors[i]);
+                        initialTeams.push({
+                            players: [],
+                            totalRating: 0,
+                            averageRating: 0,
+                            color: teamSettings.colors[i],
+                            colorName: colorName
+                        });
+                    }
+                    
+                    // Начальное распределение snake draft
+                    for (let i = 0; i < teamSettings.count * 5; i++) {
+                        const teamIndex = i % teamSettings.count;
+                        // Для четных проходов распределяем в обычном порядке, для нечетных - в обратном
+                        const actualTeamIndex = Math.floor(i / teamSettings.count) % 2 === 0 
+                            ? teamIndex 
+                            : teamSettings.count - 1 - teamIndex;
+                        
+                        initialTeams[actualTeamIndex].players.push(sortedPlayers[i]);
+                        initialTeams[actualTeamIndex].totalRating += sortedPlayers[i].rating;
+                    }
+                    
+                    // Рассчитываем средний рейтинг для каждой команды
+                    initialTeams.forEach(team => {
+                        team.averageRating = team.totalRating / 5;
+                    });
+                    
+                    // Оптимизируем распределение
+                    const optimizationResult = optimizeTeams(initialTeams, sortedPlayers);
+                    
+                    // Сортируем команды по среднему рейтингу для красивого отображения
+                    optimizationResult.teams.sort((a, b) => b.averageRating - a.averageRating);
+                    
+                    // Переходим к шагу 4
+                    currentStep = 4;
+                    updateStepIndicator();
+                    
+                    // Отображаем результат балансировки
+                    displayBalanceResult(optimizationResult);
+                    
+                    // Отображаем команды
+                    displayTeams(optimizationResult.teams);
+                    
+                    // Показываем статистику
+                    displayStats(optimizationResult.teams);
+                    
+                    // Показываем раздел с командами
+                    teamsSection.classList.remove('hidden');
+                    
+                    // Скрываем предыдущие секции
+                    legionerSection.classList.add('hidden');
+                    
+                    // Прокручиваем к результатам
+                    setTimeout(() => {
+                        teamsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        resetSplitButton();
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error('Ошибка при разделении команд:', error);
+                    showWarning('Произошла ошибка при распределении игроков. Попробуйте еще раз.');
+                    resetSplitButton();
+                }
             }, 100);
+        }
+        
+        // Функция сброса состояния кнопки разделения
+        function resetSplitButton() {
+            splitButtonText.textContent = 'Разделить на команды';
+            splitButtonLoading.classList.add('hidden');
+            document.getElementById('splitTeamsBtn').disabled = false;
+        }
+        
+        // Функция отображения результата балансировки
+        function displayBalanceResult(optimizationResult) {
+            let resultHTML = '';
+            
+            if (optimizationResult.optimized) {
+                resultHTML = `
+                    <strong>✓ Отличная балансировка!</strong> Разница в среднем рейтинге: 
+                    <strong>${optimizationResult.difference.toFixed(2)}</strong> (цель: ≤ 0.20)
+                `;
+                balanceResult.className = 'success';
+            } else {
+                resultHTML = `
+                    <strong>⚠️ Балансировка близка к цели</strong> Разница в среднем рейтинге: 
+                    <strong>${optimizationResult.difference.toFixed(2)}</strong> (цель: ≤ 0.20)<br>
+                    <small>Алгоритм не смог достичь идеальной балансировки за отведенное время, но нашел хороший вариант.</small>
+                `;
+                balanceResult.className = 'warning';
+            }
+            
+            if (optimizationResult.timeSpent) {
+                resultHTML += `<br><small>Время оптимизации: ${optimizationResult.timeSpent} мс</small>`;
+            }
+            
+            balanceResult.innerHTML = resultHTML;
         }
         
         // Функция получения названия цвета на русском
@@ -1349,7 +1570,7 @@
                         <h3>${team.colorName}</h3>
                         <div class="team-color-indicator" style="background-color: ${indicatorColor};"></div>
                     </div>
-                    <div class="team-rating">Средний рейтинг: ${team.averageRating.toFixed(1)}</div>
+                    <div class="team-rating">Средний рейтинг: ${team.averageRating.toFixed(2)}</div>
                     ${playersHTML}
                 `;
                 
@@ -1371,16 +1592,11 @@
                 const statItem = document.createElement('div');
                 statItem.className = 'stat-item';
                 statItem.innerHTML = `
-                    <div class="stat-value">${team.averageRating.toFixed(1)}</div>
+                    <div class="stat-value">${team.averageRating.toFixed(2)}</div>
                     <div class="stat-label">${team.colorName}</div>
                 `;
                 statsGrid.appendChild(statItem);
             });
-            
-            // Показываем предупреждение, если разница слишком большая
-            if (difference > 0.8) {
-                showWarning(`Разница в среднем рейтинге между командами: ${difference.toFixed(1)} пункта.`, false);
-            }
         }
         
         // Функция обновления индикатора шагов
