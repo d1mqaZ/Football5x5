@@ -666,7 +666,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>⚽ Разделение игроков для мини-футбола</h1>
+        <h1>⚽ Разделение игроков для мини-футбола 5х5</h1>
         
         <div class="app-description">
             <p><strong>Инструкция:</strong> Сначала выберите количество команд и цвета манишек, затем отметьте пришедших игроков, подтвердите список, при необходимости добавьте легионеров, и нажмите "Разделить на команды".</p>
@@ -1012,40 +1012,40 @@
         }
         
         // Функция загрузки списка игроков по умолчанию
-function loadDefaultPlayers() {
-    const defaultPlayers = [
-        {id: 1, name: "Алексей Беть", rating: 7.5, present: false, isLegioner: false},
-        {id: 2, name: "Стас Калистратов", rating: 6.7, present: false, isLegioner: false},
-        {id: 3, name: "Леха АБ", rating: 8.1, present: false, isLegioner: false},
-        {id: 4, name: "Саня кэп", rating: 6.4, present: false, isLegioner: false},
-        {id: 5, name: "Кирилл Калистратов", rating: 7.0, present: false, isLegioner: false},
-        {id: 6, name: "Алексей Большой", rating: 6.2, present: false, isLegioner: false},
-        {id: 7, name: "Андрей Розина", rating: 5.9, present: false, isLegioner: false},
-        {id: 8, name: "Денис Жуков", rating: 7.7, present: false, isLegioner: false},
-        {id: 9, name: "Дима Седов", rating: 8.4, present: false, isLegioner: false},
-        {id: 10, name: "Евгений Шушары", rating: 6.6, present: false, isLegioner: false},
-        {id: 11, name: "Иван Деменев", rating: 7.0, present: false, isLegioner: false},
-        {id: 12, name: "Игорь Калистратов", rating: 8.5, present: false, isLegioner: false},
-        {id: 13, name: "Никитос", rating: 6.5, present: false, isLegioner: false},
-        {id: 14, name: "Павел", rating: 5.6, present: false, isLegioner: false},
-        {id: 15, name: "Соколов Максим", rating: 5.3, present: false, isLegioner: false},
-        {id: 16, name: "Дима Занько", rating: 8.1, present: false, isLegioner: false},
-        {id: 17, name: "Иван Аскаров", rating: 6.8, present: false, isLegioner: false},
-        {id: 18, name: "Валентин", rating: 8.0, present: false, isLegioner: false},
-        {id: 19, name: "Влад Меленевский", rating: 5.8, present: false, isLegioner: false},
-        {id: 20, name: "Алексей Паук", rating: 9.2, present: false, isLegioner: false},
-        {id: 21, name: "Андрей Буштак", rating: 4.6, present: false, isLegioner: false},
-        {id: 22, name: "Андрей Здравков", rating: 7.2, present: false, isLegioner: false},
-        {id: 23, name: "Леша iSerenity", rating: 6.2, present: false, isLegioner: false},
-        {id: 24, name: "Александр Кунтыш", rating: 5.8, present: false, isLegioner: false},
-        {id: 25, name: "Игорь Иванов", rating: 8.5, present: false, isLegioner: false},
-        {id: 26, name: "Сергей Кальчук", rating: 8.3, present: false, isLegioner: false} 
-    ];
-    
-    allPlayers = defaultPlayers;
-    saveToStorage();
-    showInfo('Загружен список из 26 игроков. Отметьте, кто пришел на игру.');
-}
+        function loadDefaultPlayers() {
+            const defaultPlayers = [
+                {id: 1, name: "Алексей Беть", rating: 7.5, present: false, isLegioner: false},
+                {id: 2, name: "Стас Калистратов", rating: 6.7, present: false, isLegioner: false},
+                {id: 3, name: "Леха АБ", rating: 8.1, present: false, isLegioner: false},
+                {id: 4, name: "Саня кэп", rating: 6.4, present: false, isLegioner: false},
+                {id: 5, name: "Кирилл Калистратов", rating: 7.0, present: false, isLegioner: false},
+                {id: 6, name: "Алексей Большой", rating: 6.2, present: false, isLegioner: false},
+                {id: 7, name: "Андрей Розина", rating: 5.9, present: false, isLegioner: false},
+                {id: 8, name: "Денис Жуков", rating: 7.7, present: false, isLegioner: false},
+                {id: 9, name: "Дима Седов", rating: 8.4, present: false, isLegioner: false},
+                {id: 10, name: "Евгений Шушары", rating: 6.6, present: false, isLegioner: false},
+                {id: 11, name: "Иван Деменев", rating: 7.0, present: false, isLegioner: false},
+                {id: 12, name: "Игорь Калистратов", rating: 8.5, present: false, isLegioner: false},
+                {id: 13, name: "Никитос", rating: 6.5, present: false, isLegioner: false},
+                {id: 14, name: "Павел", rating: 5.6, present: false, isLegioner: false},
+                {id: 15, name: "Соколов Максим", rating: 5.3, present: false, isLegioner: false},
+                {id: 16, name: "Дима Занько", rating: 8.1, present: false, isLegioner: false},
+                {id: 17, name: "Иван Аскаров", rating: 6.8, present: false, isLegioner: false},
+                {id: 18, name: "Валентин", rating: 8.0, present: false, isLegioner: false},
+                {id: 19, name: "Влад Меленевский", rating: 5.8, present: false, isLegioner: false},
+                {id: 20, name: "Алексей Паук", rating: 9.2, present: false, isLegioner: false},
+                {id: 21, name: "Андрей Буштак", rating: 4.6, present: false, isLegioner: false},
+                {id: 22, name: "Андрей Здравков", rating: 7.2, present: false, isLegioner: false},
+                {id: 23, name: "Леша iSerenity", rating: 6.2, present: false, isLegioner: false},
+                {id: 24, name: "Александр Кунтыш", rating: 5.8, present: false, isLegioner: false},
+                {id: 25, name: "Игорь Иванов", rating: 8.5, present: false, isLegioner: false},
+                {id: 26, name: "Сергей Кальчук", rating: 8.3, present: false, isLegioner: false} // Сергей Кальчук добавлен с рейтингом 8.3
+            ];
+            
+            allPlayers = defaultPlayers;
+            saveToStorage();
+            showInfo('Загружен список из 26 игроков. Отметьте, кто пришел на игру.');
+        }
         
         // Функция добавления легионера
         function addLegioner() {
@@ -1207,7 +1207,7 @@ function loadDefaultPlayers() {
                 player.present = markAsPresent;
             });
             
-            // Отмечаем легионеров
+            // Отмечаем легионеры
             legioners.forEach(player => {
                 player.present = markAsPresent;
             });
