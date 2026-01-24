@@ -14,32 +14,32 @@ const PLAYER_STATUS = {
 // ОСНОВНОЙ СПИСОК ИГРОКОВ С СТАТУСАМИ
 // Редактируйте этот массив для добавления/удаления игроков
 const DEFAULT_PLAYERS_LIST = [
-    {id: 1, name: "Алексей Беть", rating: 7.5, status: PLAYER_STATUS.REGULAR},
+    {id: 1, name: "Алексей Беть", rating: 7.7, status: PLAYER_STATUS.REGULAR},
     {id: 2, name: "Стас Калистратов", rating: 6.7, status: PLAYER_STATUS.GUEST},
     {id: 3, name: "Леха АБ", rating: 8.1, status: PLAYER_STATUS.GUEST},
     {id: 4, name: "Саня кэп", rating: 6.4, status: PLAYER_STATUS.GUEST},
     {id: 5, name: "Кирилл Калистратов", rating: 7.0, status: PLAYER_STATUS.GUEST},
     {id: 6, name: "Алексей Большой", rating: 6.2, status: PLAYER_STATUS.GUEST},
     {id: 7, name: "Андрей Розина", rating: 5.9, status: PLAYER_STATUS.REGULAR},
-    {id: 8, name: "Денис Жуков", rating: 7.7, status: PLAYER_STATUS.REGULAR},
-    {id: 9, name: "Дима Седов", rating: 8.4, status: PLAYER_STATUS.REGULAR},
+    {id: 8, name: "Денис Жуков", rating: 7.6, status: PLAYER_STATUS.REGULAR},
+    {id: 9, name: "Дима Седов", rating: 8.6, status: PLAYER_STATUS.REGULAR},
     {id: 10, name: "Евгений Шушары", rating: 6.6, status: PLAYER_STATUS.GUEST},
     {id: 11, name: "Иван Деменев", rating: 7.0, status: PLAYER_STATUS.REGULAR},
-    {id: 12, name: "Игорь Калистратов", rating: 8.5, status: PLAYER_STATUS.REGULAR},
+    {id: 12, name: "Игорь Калистратов", rating: 8.7, status: PLAYER_STATUS.REGULAR},
     {id: 13, name: "Никитос", rating: 6.5, status: PLAYER_STATUS.GUEST},
     {id: 14, name: "Павел", rating: 5.6, status: PLAYER_STATUS.REGULAR},
     {id: 15, name: "Соколов Максим", rating: 5.3, status: PLAYER_STATUS.GUEST},
     {id: 16, name: "Дима Занько", rating: 8.1, status: PLAYER_STATUS.REGULAR},
-    {id: 17, name: "Иван Аскаров", rating: 6.8, status: PLAYER_STATUS.GUEST},
+    {id: 17, name: "Иван Аскаров", rating: 6.7, status: PLAYER_STATUS.GUEST},
     {id: 18, name: "Валентин", rating: 8.0, status: PLAYER_STATUS.GUEST},
     {id: 19, name: "Влад Меленевский", rating: 5.8, status: PLAYER_STATUS.REGULAR},
     {id: 20, name: "Алексей Паук", rating: 9.2, status: PLAYER_STATUS.GUEST},
-    {id: 21, name: "Андрей Буштак", rating: 4.6, status: PLAYER_STATUS.REGULAR},
+    {id: 21, name: "Андрей Буштак", rating: 4.5, status: PLAYER_STATUS.REGULAR},
     {id: 22, name: "Андрей Здравков", rating: 7.2, status: PLAYER_STATUS.REGULAR},
     {id: 23, name: "Леша iSerenity", rating: 6.2, status: PLAYER_STATUS.REGULAR},
     {id: 24, name: "Александр Кунтыш", rating: 5.8, status: PLAYER_STATUS.REGULAR},
-    {id: 25, name: "Игорь Иванов", rating: 8.5, status: PLAYER_STATUS.REGULAR},
-    {id: 26, name: "Сергей Кальчук", rating: 8.3, status: PLAYER_STATUS.REGULAR}
+    {id: 25, name: "Игорь Иванов", rating: 8.3, status: PLAYER_STATUS.REGULAR},
+    {id: 26, name: "Сергей Кальчук", rating: 8.2, status: PLAYER_STATUS.REGULAR}
 ];
 
 // НАСТРОЙКИ ПРОГРАММЫ
